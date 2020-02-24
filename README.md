@@ -24,11 +24,13 @@ Script used to automate the daily coin flipping feature on [Chrono.gg](https://w
 
 [Setup a cron job](https://www.geeksforgeeks.org/how-to-setup-cron-jobs-in-ubuntu/) to periodically run `cron-job-runner.sh`:
 
-`*/10 * * * * ~/chrono_bot/cron-job-runner.sh`
+`0 15 1-31 * * ~/chrono_bot/cron-job-runner.sh`
 
 Make the file `cron-job-runner.sh` executable by running `chmod +x cron-job-runner.sh`, or add `/bin/sh` when creating the job:
 
-`*/10 * * * * /bin/sh ~/chrono_bot/cron-job-runner.sh`
+`0 15 1-31 * * /bin/sh ~/chrono_bot/cron-job-runner.sh`
+
+Chrono.gg coin flips reset everyday at 9:00 AM Pacific time.
 
 Job setup may vary on your environment.
 
