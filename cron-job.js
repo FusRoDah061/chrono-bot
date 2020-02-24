@@ -1,6 +1,5 @@
 const fetch = require('node-fetch');
 const nodeMailer = require('nodemailer');
-const redis = require('./redis-promise');
 require('dotenv').config();
 
 async function sendNotificationEmail (to, subject, html) {
@@ -31,6 +30,49 @@ async function sendNotificationEmail (to, subject, html) {
   }
 }
 
+async function flipCoin(token) {
+  let flipResult = {};
+
+  const response = await fetch('https://api.chrono.gg/quest/spin', {
+    method: 'GET',
+    headers: {
+      'Authorization': `JWT ${token}`
+    }
+  });
+
+  if(response.status === 200) {
+    let json = await response.json();
+    flipResult = {
+      value: json.quest.value + json.quest.bonus,
+      status: true,
+      httpStatus: response.status
+    }
+
+    if(json.chest) 
+      flipResult.chest = {
+        value: json.chest.base + json.chest.bonus,
+        kind: json.chest.kind
+      }
+  }
+  else {
+    let text = await response.text();
+    flipResult = {
+      value: -1,
+      chest: {},
+      status: false,
+      httpStatus: response.status,
+      error: response.status === 420 ? 'Already spun' : text
+    }
+  }
+
+  console.log(flipResult);
+  return flipResult;
+}
+
+async function reportStatus(flipResult, token) {
+  
+}
+
 async function run() {
   let token = process.env.CHRONO_JWT_TOKEN;
   
@@ -42,7 +84,8 @@ async function run() {
 
   console.log("Token: ", token);
 
-  //TODO
+  let flipResult = await flipCoin(token);
+  await reportStatus(flipResult, token);
 
   return true;
 }
@@ -51,7 +94,7 @@ async function run() {
 (async function () { 
   try{
     await run(); 
-    console.log('Excution finished successfuly');
+    console.log('Execution finished successfuly');
   } 
   catch(err) {
     console.log('Execution error: ', err);
