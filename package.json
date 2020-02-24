@@ -1,0 +1,28 @@
+{
+  "name": "chronogg-bot",
+  "version": "1.0.0",
+  "description": "Automated daily coin flipping bot",
+  "main": "cron-job.js",
+  "scripts": {
+    "start": "node cron-job.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FusRoDah061/chrono-bot.git"
+  },
+  "keywords": [
+    "Chrono.gg",
+    "bot"
+  ],
+  "author": "Allex Rodrigues",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FusRoDah061/chrono-bot/issues"
+  },
+  "homepage": "https://github.com/FusRoDah061/chrono-bot#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "node-fetch": "^2.6.0",
+    "nodemailer": "^6.3.1"
+  }
+}
