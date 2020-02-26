@@ -48,7 +48,7 @@ async function flipCoin(token) {
       httpStatus: response.status
     }
 
-    if(json.chest) 
+    if(json.chest && Object.keys(json.chest).length > 0) 
       flipResult.chest = {
         value: json.chest.base + json.chest.bonus,
         kind: json.chest.kind
