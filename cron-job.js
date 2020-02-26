@@ -101,7 +101,7 @@ async function reportStatus(flipResult, token) {
   let emailBody = `
   <div style="background: #220f33;font-family: Roboto,sans-serif;color: #f1f1f1; text-align: center;padding:50px 0px;">
     <a href="https://www.chrono.gg" target="_blank">
-      <img src="https://www.chrono.gg/assets/images/logo--header.4c9abc7e.svg">
+      <img width="250" src="https://www.chrono.gg/assets/images/branding/chrono-logo--light.a13125e1.png">
     </a>
     
     <h1 style="color: #ffc534; text-transform:uppercase;border-bottom: 2px solid #4a346a;border-top: 2px solid #4a346a;background-color: rgba(74,53,106,.45);padding: 6px 0px;">Daily coin flipped!</h1>
