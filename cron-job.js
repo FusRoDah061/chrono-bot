@@ -225,7 +225,11 @@ async function run() {
   console.log("Token: ", token);
 
   let flipResult = await flipCoin(token);
-  await reportStatus(flipResult, token);
+
+  if(flipResult.value > 0)
+    await reportStatus(flipResult, token);
+  else  
+    console.log('No coin was flipped');
 
   return true;
 }
