@@ -88,7 +88,7 @@ function getChestTier(chestKind) {
   }
 }
 
-async function reportStatus(flipResult, token) {
+async function fetchAccountInformation(token) {
   const response = await fetch('http://api.chrono.gg/account', {
     method: 'GET',
     headers: {
@@ -97,7 +97,41 @@ async function reportStatus(flipResult, token) {
   });
 
   const json = await response.json();
+  return json;
+}
+
+async function fetchGamesToClaim(balance, token) {
+  console.log('Fetching games to claim');
+
+  const response = await fetch('http://api.chrono.gg/shop', {
+    method: 'GET',
+    headers: {
+      'Authorization': `JWT ${token}`
+    }
+  });
+
+  const json = await response.json();
   
+  return json
+    .filter(game => {
+      return game.status === 'active' &&
+             !game.sold_out && 
+             game.price <= balance &&
+             !game.purchased;
+    })
+    .sort((a, b) => {
+      return a.price - b.price;
+    });
+}
+
+async function reportStatus(flipResult, token) {
+  
+  let account = await fetchAccountInformation(token);
+  let gamesToClaim = await fetchGamesToClaim(account.coins.balance, token);
+  
+  console.log('Account: ', account);
+  console.log('Games to claim: ', gamesToClaim);
+
   let emailBody = `
   <div style="background: #220f33;font-family: Roboto,sans-serif;color: #f1f1f1; text-align: center;padding:50px 0px;">
     <a href="https://www.chrono.gg" target="_blank">
@@ -118,12 +152,12 @@ async function reportStatus(flipResult, token) {
       Your current balance is
       <span style="font-size: 20px; color: #ffc534; font-weight: 500; margin-top: 10px; margin-bottom: 10px; display: block;">
         <img height="20" width="20" src="https://www.chrono.gg/assets/images/coins/coin--1.76ce3c14.png">
-        ${json.coins.balance} coins
+        ${account.coins.balance} coins
       </span>
     </p>
   `;
 
-  if(flipResult.chest) {
+  if(flipResult.chest) 
     emailBody += `
     <p style="font-size: 16px;margin-top: 50px;">Today's flip also rewarded you with a...</p>
     <img width="250" style="display: block; margin: auto; margin-bottom: 10px;" src="https://www.chrono.gg/assets/images/chests/chestModalHeader--${flipResult.chest.kind}.png">
@@ -138,8 +172,38 @@ async function reportStatus(flipResult, token) {
       inside!
     </p>
     `;
-  }
 
+  if(gamesToClaim.length > 0) {
+    emailBody += `
+      <h2 style="color: #ffc534; text-transform:uppercase;border-bottom: 2px solid #4a346a;border-top: 2px solid #4a346a;background-color: rgba(74,53,106,.45);padding: 6px 0px;">Games available</h2>
+	
+      <p style="font-size: 16px;">You can claim the following games right now!</p>
+      
+      <ul style="padding:0; width:345px; margin:auto;">`;
+
+    for(game of gamesToClaim) 
+      emailBody += `
+        <li style="list-style:none; background: #4a366a; border-radius: 2px; padding-bottom: 10px; margin-bottom: 10px; margin-left: 0px;">
+          <a style="color: white; text-decoration: none;" href="https://www.chrono.gg/shop">
+            <img width="345" src="http://www.chrono.gg/assets/images/shop/${game.hash}/item-header.jpg">
+
+            <span style="display:block; width:100%; height:6px; background:#ff934d; border:0; position:relative; margin:0; top:-3px;"></span>
+            
+            <p style="margin: 0; text-align: left; padding: 10px 15px; font-size: 16px;">${game.name}</p>
+            
+            <a style="color: white; text-decoration:none; font-size: 15px; margin-left: 15px; float: left; color: #fc0;" href="${game.url}" target="_blank">View game on Steam</a>
+
+            <span style="background: rgba(221,192,255,.16); border-radius: 30px; padding: 5px 10px 4px; font-size: 14px; margin-right: 15px; float: right;">
+              <img height="16" width="16" style="vertical-align: top;" src="http://www.chrono.gg/assets/images/coins/coin--1.76ce3c14.png">
+              ${game.price}
+            </span>
+            <span style="display: block; clear:both;"></span>
+          </a>
+        </li>`;
+    
+    emailBody += '</ul>';
+  }
+    
   emailBody += '</div>';
 
   await sendNotificationEmail(
@@ -165,7 +229,6 @@ async function run() {
 
   return true;
 }
-
 
 (async function () { 
   try{
