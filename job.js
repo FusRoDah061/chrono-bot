@@ -1,28 +1,7 @@
 const fetch = require('node-fetch');
 const nodeMailer = require('nodemailer');
+const log = require('./logger').getLogger('job');
 require('dotenv').config();
-
-const log = createLogger();
-
-function getSystemRoot() {
-  var path = require("path");
-  var os = require("os");
-  return (os.platform == "win32") ? process.cwd().split(path.sep)[0] : "/";
-}
-
-function createLogger() {
-  const manager = require('simple-node-logger').createLogManager();
-  
-  let opts = {
-    dateFormat: 'YYYY-MM-DD',
-    logDirectory: process.env.LOG_DIRECTORY || getSystemRoot(),
-    fileNamePattern: process.env.LOG_FILENAME_PATTERN || 'chrono-bot-<DATE>.log'
-  };  
-     
-  manager.createRollingFileAppender(opts);
-  
-  return manager.createLogger('cron-job'); 
-}
 
 async function sendNotificationEmail (to, subject, html) {
   
@@ -256,14 +235,4 @@ async function run() {
   return true;
 }
 
-(async function () { 
-  try{
-    await run(); 
-    log.info('Execution finished successfuly');
-  } 
-  catch(err) {
-    log.error('Execution error: ', err);
-  }
-  
-  process.exit(0);
-})();
+module.exports = { run: run };
