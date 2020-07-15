@@ -20,6 +20,10 @@ Script used to automate the daily coin flipping feature on [Chrono.gg](https://w
 
 - `NOTIFICATION_EMAL`: Email address to send notifications to.
 
+- `LOG_DIRECTORY`: Directory where the application will store log files. Must exist and be writeable.
+
+- `LOG_FILENAME_PATTERN`: Log file name pattern. Use [simple-node-logger](https://www.npmjs.com/package/simple-node-logger) patterns.
+
 ## Deploying
 
 [Setup a cron job](https://www.geeksforgeeks.org/how-to-setup-cron-jobs-in-ubuntu/) to periodically run `cron-job-runner.sh`:

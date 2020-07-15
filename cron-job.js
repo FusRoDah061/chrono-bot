@@ -2,11 +2,33 @@ const fetch = require('node-fetch');
 const nodeMailer = require('nodemailer');
 require('dotenv').config();
 
+const log = createLogger();
+
+function getSystemRoot() {
+  var path = require("path");
+  var os = require("os");
+  return (os.platform == "win32") ? process.cwd().split(path.sep)[0] : "/";
+}
+
+function createLogger() {
+  const manager = require('simple-node-logger').createLogManager();
+  
+  let opts = {
+    dateFormat: 'YYYY-MM-DD',
+    logDirectory: process.env.LOG_DIRECTORY || getSystemRoot(),
+    fileNamePattern: process.env.LOG_FILENAME_PATTERN || 'chrono-bot-<DATE>.log'
+  };  
+     
+  manager.createRollingFileAppender(opts);
+  
+  return manager.createLogger('cron-job'); 
+}
+
 async function sendNotificationEmail (to, subject, html) {
   
   if(!to) return;
 
-  console.log(`Sending email to "${to}" with subject "${subject}"`);
+  log.info('Sending email to ', to, ' with subject ', subject);
 
   let transporter = nodeMailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -22,11 +44,10 @@ async function sendNotificationEmail (to, subject, html) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Email sent');
+    log.info('Email sent')
   }
   catch(err) {
-    console.log('Error sending email:');
-    console.error(err);
+    log.error('Error sending email: ', err);
   }
 }
 
@@ -65,7 +86,6 @@ async function flipCoin(token) {
     }
   }
 
-  console.log(flipResult);
   return flipResult;
 }
 
@@ -129,8 +149,8 @@ async function reportStatus(flipResult, token) {
   let account = await fetchAccountInformation(token);
   let gamesToClaim = await fetchGamesToClaim(account.coins.balance, token);
   
-  console.log('Account: ', account);
-  console.log('Games to claim: ', gamesToClaim);
+  log.info('Account: ', account);
+  log.info('Games to claim: ', gamesToClaim);
 
   let emailBody = `
   <div style="background: #220f33;font-family: Roboto,sans-serif;color: #f1f1f1; text-align: center;padding:50px 0px;">
@@ -217,19 +237,21 @@ async function run() {
   let token = process.env.CHRONO_JWT_TOKEN;
   
   if(!token) {
-    console.log("Undefined token.");
+    log.fatal("Undefined access token.");
     await sendNotificationEmail(process.env.NOTIFICATION_EMAL, 'Chrono.gg JWT token not set', 'JWT token for chrono.gg authentication is not set.');
     return false;
   }
 
-  console.log("Token: ", token);
+  log.info("Token: ", token);
 
   let flipResult = await flipCoin(token);
+
+  log.debug('Flip coin result: ', flipResult);
 
   if(flipResult.value > 0)
     await reportStatus(flipResult, token);
   else  
-    console.log('No coin was flipped');
+    log.info('No coin was flipped');
 
   return true;
 }
@@ -237,10 +259,10 @@ async function run() {
 (async function () { 
   try{
     await run(); 
-    console.log('Execution finished successfuly');
+    log.info('Execution finished successfuly');
   } 
   catch(err) {
-    console.log('Execution error: ', err);
+    log.error('Execution error: ', err);
   }
   
   process.exit(0);
