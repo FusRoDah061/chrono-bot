@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
 const nodeMailer = require('nodemailer');
 const log = require('./logger').getLogger('job');
-require('dotenv').config();
 
 async function sendNotificationEmail (to, subject, html) {
   
