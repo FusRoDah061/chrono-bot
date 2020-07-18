@@ -1,12 +1,14 @@
 # Chrono.gg Bot
 
-Script used to automate the daily coin flipping feature on [Chrono.gg](https://www.chrono.gg/). Run it as a cron job.
+Program used to automate the daily coin flipping feature on [Chrono.gg](https://www.chrono.gg/).
 
 ## Requirements
 
-- Cron
+- Docker
 
-`.env` properties:
+### Environment properties:
+
+Set these values within the `create-container` script for your platform (Windows or Linux).
 
 - `SMTP_HOST`: SMTP host used for sending notification emails (eg. `smtp.gmail.com`).
 
@@ -20,24 +22,22 @@ Script used to automate the daily coin flipping feature on [Chrono.gg](https://w
 
 - `NOTIFICATION_EMAL`: Email address to send notifications to.
 
-- `LOG_DIRECTORY`: Directory where the application will store log files. Must exist and be writeable.
-
-- `LOG_FILENAME_PATTERN`: Log file name pattern. Use [simple-node-logger](https://www.npmjs.com/package/simple-node-logger) patterns.
+- `JOB_CRON_EXPRESSION`: Cron expression indicating the frequency in which the job will run. Chrono.gg coin flips reset everyday at 9:00 AM Pacific time.
 
 ## Deploying
 
-[Setup a cron job](https://www.geeksforgeeks.org/how-to-setup-cron-jobs-in-ubuntu/) to periodically run `cron-job-runner.sh`:
+Before starting the application, make sure to configure the environment params shown above.
 
-`0 15 1-31 * * ~/chrono_bot/cron-job-runner.sh`
+To deploy, simply run the `create-container` script for your platform. This must be run from the same folder where the Dockerfile is located.
 
-Make the file `cron-job-runner.sh` executable by running `chmod +x cron-job-runner.sh`, or add `/bin/sh` when creating the job:
+### Windows
 
-`0 15 1-31 * * /bin/sh ~/chrono_bot/cron-job-runner.sh`
+Run `windows\create-container.bat` at a terminal window. This will build the Dockerfile and start a container with the application.
 
-Chrono.gg coin flips reset everyday at 9:00 AM Pacific time.
+If you need to change any of the environment params, use `windows\reset-container.bat` to recreate the container with the new values.
 
-Job setup may vary on your environment.
+### Linux
 
-To check if the job is set, run and look for the created job:
+Run `linux\create-container.sh` at a terminal window. This will build the Dockerfile and start a container with the application.
 
-`grep CRON /var/log/syslog`
+If you need to change any of the environment params, use `linux\reset-container.sh` to recreate the container with the new values.
