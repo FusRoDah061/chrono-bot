@@ -7,7 +7,7 @@ set SMTP_USER=
 set SMTP_PASSWORD=
 set CHRONO_JWT_TOKEN=
 set NOTIFICATION_EMAL=
-set JOB_CRON_EXPRESSION=0 18 1-31 * *
+set JOB_CRON_EXPRESSION=
 
 docker build -t fusrodah061/chrono-bot .
 docker run -d ^
